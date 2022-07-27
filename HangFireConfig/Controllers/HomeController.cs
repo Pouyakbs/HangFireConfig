@@ -14,11 +14,13 @@ namespace HangFireConfig.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IRecurringJobManager recurringJobManager;
+        private readonly IBackgroundJobClient backgroundJobClient;
 
-        public HomeController(ILogger<HomeController> logger , IRecurringJobManager recurringJobManager)
+        public HomeController(ILogger<HomeController> logger , IRecurringJobManager recurringJobManager , IBackgroundJobClient backgroundJobClient)
         {
             _logger = logger;
             this.recurringJobManager = recurringJobManager;
+            this.backgroundJobClient = backgroundJobClient;
         }
 
         public IActionResult Index()
@@ -26,9 +28,21 @@ namespace HangFireConfig.Controllers
             return View();
         }
 
-        [HttpPost]
+        [Route("welcome")]
+        public IActionResult Welcome()
+        {
+            var jobId = backgroundJobClient.Enqueue(() => SendWelcomeMail("Pouyakhodabakhsh1994@gmail.com"));
+            return Ok($"Job Id {jobId} Completed. Welcome Mail Sent!");
+        }
+
+        public void SendWelcomeMail(string username)
+        {
+            //Logic to Mail the user
+            Console.WriteLine($"Welcome to our application, Pouyakhodabakhsh1994@gmail.com");
+        }
+
         [Route("BackUp")]
-        public IActionResult BackUp(string userName)
+        public IActionResult BackUp()
         {
             recurringJobManager.AddOrUpdate("test", () => BackUpDataBase(), Cron.Weekly);
             return Ok();

@@ -40,7 +40,10 @@ namespace HangFireConfig
         }));
 
             // Add the processing server as IHostedService
-            services.AddHangfireServer();
+            services.AddHangfireServer(option =>
+            {
+                option.SchedulePollingInterval = TimeSpan.FromSeconds(1);
+            });
 
             // Add framework services.
             services.AddMvc();
